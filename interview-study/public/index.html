@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>면접 스터디 | C++ 게임 개발</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<header class="header">
+    <div class="header-inner">
+        <div class="header-brand">
+            <div class="header-icon">⚔</div>
+            <div>
+                <h1>면접 스터디</h1>
+                <span class="header-subtitle">C++ Game Developer Interview Prep</span>
+            </div>
+        </div>
+        <div class="header-badges">
+            <span class="badge badge-blue">월~금 21:00 스터디</span>
+            <span class="badge badge-orange">15:00 제출 마감</span>
+        </div>
+    </div>
+</header>
+
+<main class="main">
+
+    <!-- 규칙 섹션 -->
+    <section class="rules-section">
+        <h2 class="section-title"><span class="section-icon">📋</span> 스터디 규칙</h2>
+        <div class="rules-grid">
+            <div class="rule-card rule-card--blue">
+                <div class="rule-number">01</div>
+                <div class="rule-content">
+                    <h3>스터디 일정</h3>
+                    <p>월~금 매일 <strong>오후 9시</strong>에 스터디를 진행합니다.</p>
+                </div>
+            </div>
+            <div class="rule-card rule-card--orange">
+                <div class="rule-number">02</div>
+                <div class="rule-content">
+                    <h3>문제 제출</h3>
+                    <p><strong>오후 3시</strong>까지 자료구조 · CS · C++ 문제를 각각 <strong>1개씩</strong> 올립니다.</p>
+                </div>
+            </div>
+            <div class="rule-card rule-card--green">
+                <div class="rule-number">03</div>
+                <div class="rule-content">
+                    <h3>답변 준비</h3>
+                    <p>다른 사람이 올린 질문에 대한 답변을 <strong>외워서</strong> 스터디 시간에 대답합니다.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="targets-section">
+            <h3 class="targets-title">
+                <span>채용 목표 역량</span>
+                <span class="targets-company">C++ 게임 서버 개발</span>
+            </h3>
+            <div class="targets-grid">
+                <div class="target-item">
+                    <span class="target-icon">🎮</span>
+                    <span>C++를 이용한 게임 컨텐츠 개발</span>
+                </div>
+                <div class="target-item">
+                    <span class="target-icon">🖥</span>
+                    <span>MFC 테스트 클라이언트 구현 및 서버 연동</span>
+                </div>
+                <div class="target-item">
+                    <span class="target-icon">🗄</span>
+                    <span>DB 설계 및 구현 (MySQL)</span>
+                </div>
+                <div class="target-item">
+                    <span class="target-icon">🧩</span>
+                    <span>C++ 객체지향 프로그래밍</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 멤버 표시 -->
+    <div class="members-bar">
+        <span class="members-label">스터디 멤버</span>
+        <div class="member-chips">
+            <span class="member-chip member-chip--yemin">여민</span>
+            <span class="member-chip member-chip--eunjung">은정</span>
+            <span class="member-chip member-chip--hyesun">혜선</span>
+        </div>
+    </div>
+
+    <!-- 탭 네비게이션 -->
+    <div class="tab-nav">
+        <button class="tab-btn active" data-tab="list">
+            <span>📚</span> 질문 목록
+        </button>
+        <button class="tab-btn" data-tab="submit">
+            <span>✏️</span> 질문 등록
+        </button>
+    </div>
+
+    <!-- 질문 목록 탭 -->
+    <div id="tab-list" class="tab-content active">
+        <div class="list-controls">
+            <div class="date-picker-wrap">
+                <label for="date-picker">날짜 선택</label>
+                <input type="date" id="date-picker" class="date-input">
+                <button class="btn-today" id="btn-today">오늘</button>
+            </div>
+            <div class="date-shortcuts" id="date-shortcuts"></div>
+        </div>
+        <div id="questions-container">
+            <div class="empty-state">
+                <p>날짜를 선택하면 질문 목록을 볼 수 있습니다.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 질문 등록 탭 -->
+    <div id="tab-submit" class="tab-content">
+        <div class="form-card">
+            <h2 class="form-title">질문 등록</h2>
+            <form id="question-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="form-date">날짜</label>
+                        <input type="date" id="form-date" name="study_date" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="form-member">멤버</label>
+                        <select id="form-member" name="member" class="form-control" required>
+                            <option value="">-- 선택 --</option>
+                            <option value="여민">여민</option>
+                            <option value="은정">은정</option>
+                            <option value="혜선">혜선</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="form-category">카테고리</label>
+                        <select id="form-category" name="category" class="form-control" required>
+                            <option value="">-- 선택 --</option>
+                            <option value="CS">CS</option>
+                            <option value="C++">C++</option>
+                            <option value="자료구조">자료구조</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="form-question">질문 내용</label>
+                    <textarea id="form-question" name="question" class="form-control" rows="4"
+                              placeholder="질문을 입력하세요..." required></textarea>
+                </div>
+                <button type="submit" class="btn-submit">등록하기</button>
+            </form>
+        </div>
+    </div>
+
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script src="app.js"></script>
+</body>
+</html>

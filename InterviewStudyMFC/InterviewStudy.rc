@@ -1,0 +1,96 @@
+// Microsoft Visual C++ generated resource script.
+#include "resource.h"
+#include "winres.h"
+
+LANGUAGE LANG_NEUTRAL, SUBLANG_DEFAULT
+
+/////////////////////////////////////////////////////////////////////////////
+// Dialog
+
+// ---- Main Dialog (560 x 460 DU) ------------------------------------
+IDD_MAIN_DLG DIALOGEX 0, 0, 560, 460
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX
+CAPTION "Interview Study"
+FONT 9, "Malgun Gothic", 400, 0, 0x1
+BEGIN
+    GROUPBOX        "",IDC_GRP_RULES,              7,   5, 546,  98
+    LTEXT           "",IDC_STATIC_RULE1,           14,  17, 530,  14
+    LTEXT           "",IDC_STATIC_RULE2,           14,  35, 530,  14
+    LTEXT           "",IDC_STATIC_RULE3,           14,  53, 530,  14
+    LTEXT           "",IDC_STATIC_TARGETS,         14,  76, 530,  14
+    CONTROL         "",IDC_TAB,"SysTabControl32",
+                    TCS_TABS | WS_TABSTOP,          7, 108, 546, 330
+    PUSHBUTTON      "",IDC_BTN_DB_CONNECT,        462, 447,  90,  14
+    LTEXT           "",IDC_STATIC_DB_STATUS,        7, 447, 448,  14
+END
+
+
+// ---- List Page (child, no caption) ---------------------------------
+IDD_LIST_PAGE DIALOGEX 0, 0, 540, 315
+STYLE DS_SETFONT | WS_CHILD
+FONT 9, "Malgun Gothic", 400, 0, 0x1
+BEGIN
+    LTEXT           "",IDC_STATIC,                  5,   8,  22,  10
+    CONTROL         "",IDC_DATE_PICKER,
+                    "SysDateTimePick32",
+                    DTS_SHORTDATEFORMAT | WS_TABSTOP,
+                                                   30,   5,  90,  20
+    PUSHBUTTON      "",IDC_BTN_TODAY,             124,   5,  35,  16
+    PUSHBUTTON      "",IDC_BTN_DELETE,            478,   5,  55,  16
+    CONTROL         "",IDC_LIST_QUESTIONS,
+                    "SysListView32",
+                    LVS_REPORT | LVS_FULLROWSELECT | LVS_SINGLESEL |
+                    LVS_SHOWSELALWAYS | WS_BORDER | WS_TABSTOP,
+                                                    5,  28, 528, 282
+END
+
+
+// ---- Add Page (child, no caption) ----------------------------------
+IDD_ADD_PAGE DIALOGEX 0, 0, 540, 315
+STYLE DS_SETFONT | WS_CHILD
+FONT 9, "Malgun Gothic", 400, 0, 0x1
+BEGIN
+    LTEXT           "",IDC_STATIC,                  5,  13,  22,  10
+    CONTROL         "",IDC_DATE_ADD,
+                    "SysDateTimePick32",
+                    DTS_SHORTDATEFORMAT | WS_TABSTOP,
+                                                   30,  10,  90,  20
+    LTEXT           "",IDC_STATIC,                130,  13,  36,  10
+    COMBOBOX        IDC_COMBO_MEMBER,             170,  10,  80,  80,
+                    CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "",IDC_STATIC,                258,  13,  44,  10
+    COMBOBOX        IDC_COMBO_CATEGORY,           305,  10,  90,  80,
+                    CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "",IDC_STATIC,                  5,  40,  44,  10
+    EDITTEXT        IDC_EDIT_QUESTION,              5,  54, 528, 200,
+                    ES_MULTILINE | ES_AUTOVSCROLL |
+                    ES_WANTRETURN | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "",IDC_BTN_SUBMIT,            215, 264, 110,  24
+END
+
+
+// ---- Connect Dialog ------------------------------------------------
+IDD_CONNECT_DLG DIALOGEX 0, 0, 260, 178
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "DB Connection"
+FONT 9, "Malgun Gothic", 400, 0, 0x1
+BEGIN
+    LTEXT           "Host:",IDC_STATIC,            10,  16,  28,  10
+    EDITTEXT        IDC_EDIT_HOST,                 45,  14, 168,  14,
+                    ES_AUTOHSCROLL
+    LTEXT           "Port:",IDC_STATIC,            10,  36,  28,  10
+    EDITTEXT        IDC_EDIT_PORT,                 45,  34,  60,  14,
+                    ES_AUTOHSCROLL | ES_NUMBER
+    LTEXT           "User:",IDC_STATIC,            10,  56,  28,  10
+    EDITTEXT        IDC_EDIT_USER,                 45,  54, 168,  14,
+                    ES_AUTOHSCROLL
+    LTEXT           "Password:",IDC_STATIC,        10,  76,  44,  10
+    EDITTEXT        IDC_EDIT_PASS,                 58,  74, 155,  14,
+                    ES_AUTOHSCROLL | ES_PASSWORD
+    LTEXT           "Database:",IDC_STATIC,        10,  96,  44,  10
+    EDITTEXT        IDC_EDIT_DBNAME,               58,  94, 155,  14,
+                    ES_AUTOHSCROLL
+    LTEXT           "",IDC_STATIC_CONN_STATUS,     10, 120, 240,  12
+    DEFPUSHBUTTON   "Connect",IDOK,                80, 148,  80,  20
+    PUSHBUTTON      "Cancel",IDCANCEL,            165, 148,  65,  20
+END
