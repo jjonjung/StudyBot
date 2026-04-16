@@ -1,0 +1,19 @@
+Q	A
+C++ happens-before 관계란?	happens-before는 멀티스레드 환경에서 한 연산이 다른 연산보다 먼저 실행됨이 보장되는 관계입니다. mutex, atomic 연산 등을 통해 메모리 가시성과 실행 순서를 보장하며, 이를 지키지 않으면 Race Condition이 발생할 수 있습니다.
+atomic과 mutex의 차이?	atomic은 단일 변수에 대해 lock-free로 원자적 연산을 보장하고, mutex는 여러 연산을 임계영역으로 보호합니다. atomic은 빠르지만 제한적이고, mutex는 범용적이지만 비용이 큽니다.
+memory_order란?	CPU와 컴파일러의 명령 재정렬을 제어하기 위한 옵션입니다. seq_cst는 가장 강한 순서 보장을 제공하며, acquire/release는 읽기/쓰기 순서를 제어합니다.
+False Sharing이란?	서로 다른 변수가 같은 cache line에 존재할 때 발생하는 성능 저하 문제입니다. alignas나 padding으로 해결합니다.
+Thread Pool을 사용하는 이유?	스레드 생성/삭제 비용을 줄이고 재사용을 통해 성능을 안정화하기 위해 사용합니다.
+cache locality란?	데이터가 연속된 메모리에 배치될수록 cache hit율이 높아져 성능이 향상되는 특성입니다.
+vector가 list보다 빠른 이유?	vector는 연속 메모리를 사용해 cache locality가 좋고, list는 포인터 기반이라 cache miss가 많기 때문입니다.
+vector reserve를 사용하는 이유?	reallocation을 방지하여 성능 저하를 막기 위해 미리 메모리를 확보합니다.
+RAII란?	객체 생성 시 자원을 획득하고 소멸 시 해제하는 방식으로, 예외 상황에서도 안전한 자원 관리를 보장합니다.
+virtual 소멸자가 필요한 이유?	부모 포인터로 delete할 때 자식 소멸자까지 호출되도록 하기 위해 필요합니다.
+move semantics의 장점?	불필요한 복사를 제거하여 성능을 향상시킵니다.
+unordered_map vs map 차이?	unordered_map은 hash 기반 O(1), map은 tree 기반 O(log n)이며 정렬을 유지합니다.
+erase-remove idiom이란?	remove_if로 요소를 뒤로 이동시키고 erase로 실제 삭제하는 패턴입니다.
+virtual 함수 구조?	vtable과 vptr이 생성되어 런타임에 함수가 결정됩니다.
+virtual 함수의 비용?	간접 호출로 인해 인라이닝이 불가능하여 성능 비용이 존재합니다.
+AI 비동기 처리 구조?	worker thread에서 계산하고 main thread에서 결과를 적용하는 구조입니다.
+Pathfinding 병렬화 주의점?	공유 데이터 동기화와 결과 병합 비용을 고려해야 합니다.
+Race Condition 해결 방법?	mutex, atomic, immutable 데이터 구조 등을 활용하여 공유 자원 접근을 통제합니다.
