@@ -1,0 +1,24 @@
+{
+  "listeners": [
+    {
+      "address": "0.0.0.0",
+      "port": 3000
+    }
+  ],
+  "db_clients": [
+    {
+      "rdbms": "mysql",
+      "host": "172.23.208.1",
+      "port": 3306,
+      "dbname": "studybot",
+      "user": "root",
+      "passwd": "0000",
+      "connection_number": 10
+    }
+  ],
+  "app": {
+    "jwt_secret": "studybot-secret-key",
+    "google_client_id": "xxxx.apps.googleusercontent.com",
+    "bcrypt_cost": 10
+  }
+}

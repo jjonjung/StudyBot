@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Android Network Security Configuration
+    Android API 28+ 에서 http:// 및 ws:// cleartext 트래픽을 허용합니다.
+
+    허용 대상:
+      - 10.0.2.2       : Android 에뮬레이터 → 호스트 PC localhost
+      - 10.0.0.0/8     : 로컬 네트워크 (실기기 테스트)
+      - 192.168.0.0/16 : 가정/사무실 Wi-Fi 네트워크
+
+    프로덕션 배포 시에는 HTTPS/WSS를 사용하고 이 설정을 제거하세요.
+-->
+<network-security-config>
+
+    <!-- 개발 서버: Android 에뮬레이터 호스트 PC -->
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="false">10.0.2.2</domain>
+    </domain-config>
+
+    <!-- 실기기 테스트: 로컬 네트워크 (10.x.x.x) -->
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="false">10.0.0.1</domain>
+        <domain includeSubdomains="false">10.0.0.2</domain>
+        <!-- 실제 서버 IP로 교체하세요 -->
+    </domain-config>
+
+    <!-- 실기기 테스트: 가정/사무실 Wi-Fi (192.168.x.x) -->
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="false">192.168.0.1</domain>
+        <!-- 실제 서버 IP로 교체하세요 -->
+    </domain-config>
+
+    <!-- 그 외 모든 도메인: cleartext 차단 (기본값 유지) -->
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <certificates src="system"/>
+        </trust-anchors>
+    </base-config>
+
+</network-security-config>

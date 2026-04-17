@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Android Plugin Language (APL) for StudyBot
+    UBT가 UnrealStudyBot.Build.cs 와 같은 폴더에서 자동 인식합니다.
+
+    역할:
+      1. play-services-auth Gradle 의존성 추가
+      2. INTERNET / ACCESS_NETWORK_STATE 퍼미션 추가
+      3. AndroidManifest에 networkSecurityConfig 속성 추가
+      4. GoogleAuthHelper.java를 Gradle 소스셋에 복사
+      5. onActivityResult 훅 등록 (Google Sign-In 결과 수신)
+      6. google-services 플러그인 적용
+-->
+<root xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- ── 1. Gradle 의존성 ──────────────────────────────────────────────── -->
+    <gradleProperties>
+        <insert>
+            # Google Sign-In
+            googlePlayServicesAuthVersion=21.2.0
+        </insert>
+    </gradleProperties>
+
+    <buildGradleAdditions>
+        <insert>
+dependencies {
+    implementation "com.google.android.gms:play-services-auth:$googlePlayServicesAuthVersion"
+}
+        </insert>
+    </buildGradleAdditions>
+
+    <!-- google-services.json 처리 플러그인 -->
+    <buildscriptGradleAdditions>
+        <insert>
+    dependencies {
+        classpath 'com.google.gms:google-services:4.4.1'
+    }
+        </insert>
+    </buildscriptGradleAdditions>
+
+    <applyPlugins>
+        <insert>
+apply plugin: 'com.google.gms.google-services'
+        </insert>
+    </applyPlugins>
+
+    <!-- ── 2. AndroidManifest 퍼미션 & 속성 ─────────────────────────────── -->
+    <androidManifestUpdates>
+        <!-- 네트워크 퍼미션 -->
+        <addPermission android:name="android.permission.INTERNET"/>
+        <addPermission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+
+        <!-- API 28+ cleartext HTTP/WS 허용 (개발용: 10.0.2.2, 로컬 서버) -->
+        <setElement tag="application"
+                    name="android:networkSecurityConfig"
+                    value="@xml/network_security_config"/>
+    </androidManifestUpdates>
+
+    <!-- ── 3. GoogleAuthHelper.java 복사 ────────────────────────────────── -->
+    <!--
+        Source/UnrealStudyBot/Java/GoogleAuthHelper.java
+        → [GradleProject]/src/main/java/com/studybot/game/GoogleAuthHelper.java
+    -->
+    <resourceCopies>
+        <copyFile src="$S(PluginDir)/Java/GoogleAuthHelper.java"
+                  dst="$S(BuildDir)/src/main/java/com/studybot/game/GoogleAuthHelper.java"/>
+    </resourceCopies>
+
+    <!-- ── 4. res/xml/network_security_config.xml 복사 ──────────────────── -->
+    <!--
+        Build/Android/res/xml/network_security_config.xml
+        → [GradleProject]/src/main/res/xml/network_security_config.xml
+    -->
+    <resourceCopies>
+        <copyFile src="$S(ProjectDir)/Build/Android/res/xml/network_security_config.xml"
+                  dst="$S(BuildDir)/src/main/res/xml/network_security_config.xml"/>
+    </resourceCopies>
+
+    <!-- ── 5. GameActivity Java 코드 삽입 ───────────────────────────────── -->
+    <!--
+        GameActivity.onActivityResult() 에 Google Sign-In 결과 처리 코드를 삽입합니다.
+        UPL의 gameActivityOnActivityResultAdditions 훅을 사용합니다.
+    -->
+    <gameActivityOnActivityResultAdditions>
+        <insert>
+            // Google Sign-In 결과 처리
+            com.studybot.game.GoogleAuthHelper.handleSignInResult(requestCode, resultCode, data);
+        </insert>
+    </gameActivityOnActivityResultAdditions>
+
+    <!-- ── 6. 필요한 import 추가 ────────────────────────────────────────── -->
+    <gameActivityImportAdditions>
+        <insert>
+import android.content.Intent;
+        </insert>
+    </gameActivityImportAdditions>
+
+</root>
