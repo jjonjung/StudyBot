@@ -114,11 +114,11 @@ void UContributionWidget::BuildGrid(
             UImage* Tile = NewObject<UImage>(this);
             Tile->SetColorAndOpacity(RatioToColor(Ratio));
 
-            auto* Slot = HeatmapGrid->AddChildToUniformGrid(Tile, Day, Week);
-            if (Slot)
+            auto* TileSlot = HeatmapGrid->AddChildToUniformGrid(Tile, Day, Week);
+            if (TileSlot)
             {
-                Slot->SetHorizontalAlignment(HAlign_Fill);
-                Slot->SetVerticalAlignment(VAlign_Fill);
+                TileSlot->SetHorizontalAlignment(HAlign_Fill);
+                TileSlot->SetVerticalAlignment(VAlign_Fill);
             }
         }
     }

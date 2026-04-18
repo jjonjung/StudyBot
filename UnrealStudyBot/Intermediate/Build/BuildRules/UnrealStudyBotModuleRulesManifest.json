@@ -1,6 +1,8 @@
 {
 	"SourceFiles": [
-		"C:\\Users\\EJ\\Desktop\\Fork\\StudyBot\\UnrealStudyBot\\Source\\UnrealStudyBot\\UnrealStudyBot.Build.cs"
+		"C:\\Users\\EJ\\Desktop\\Fork\\StudyBot\\UnrealStudyBot\\Source\\UnrealStudyBot\\UnrealStudyBot.Build.cs",
+		"C:\\Users\\EJ\\Desktop\\Fork\\StudyBot\\UnrealStudyBot\\Source\\UnrealStudyBot.Target.cs",
+		"C:\\Users\\EJ\\Desktop\\Fork\\StudyBot\\UnrealStudyBot\\Source\\UnrealStudyBotEditor.Target.cs"
 	],
 	"EngineVersion": "5.6.1"
 }
