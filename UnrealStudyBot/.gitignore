@@ -3,10 +3,23 @@ Binaries/
 DerivedDataCache/
 Intermediate/
 Saved/
+Build/
+
+# Unreal solution/project (regenerated from .uproject)
+*.sln
+*.suo
+*.xcodeproj/
+*.xcworkspace/
+
+# Plugins build artifacts
+Plugins/*/Binaries/
+Plugins/*/Intermediate/
 
 # IDE
 .vs/
 .vscode/
+.idea/
+*.iml
 
 # Visual Studio
 *.VC.db
