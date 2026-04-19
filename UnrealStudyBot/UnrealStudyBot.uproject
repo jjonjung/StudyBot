@@ -11,9 +11,21 @@
 		}
 	],
 	"Plugins": [
-		{"Name": "MetaHuman", "Enabled": false},
-		{"Name": "MetaHumanCoreTech", "Enabled": false},
-		{"Name": "CaptureData", "Enabled": false},
-		{"Name": "AndroidPermission", "Enabled": true}
+		{
+			"Name": "MetaHuman",
+			"Enabled": false
+		},
+		{
+			"Name": "MetaHumanCoreTech",
+			"Enabled": false
+		},
+		{
+			"Name": "CaptureData",
+			"Enabled": false
+		},
+		{
+			"Name": "AndroidPermission",
+			"Enabled": true
+		}
 	]
 }
