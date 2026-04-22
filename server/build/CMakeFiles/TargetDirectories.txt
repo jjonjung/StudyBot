@@ -1,0 +1,3 @@
+/mnt/c/Users/EJ/Desktop/Fork/StudyBot/server/build/CMakeFiles/studybot_server.dir
+/mnt/c/Users/EJ/Desktop/Fork/StudyBot/server/build/CMakeFiles/edit_cache.dir
+/mnt/c/Users/EJ/Desktop/Fork/StudyBot/server/build/CMakeFiles/rebuild_cache.dir
