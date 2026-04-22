@@ -67,6 +67,7 @@ void ULoginWidget::HandleLoginResult(bool bSuccess, const FString& Message)
     if (bSuccess)
     {
         SetMessage(TEXT("환영합니다!"));
+        RemoveFromParent();
         if (auto* GI = Cast<UStudyBotGameInstance>(GetGameInstance()))
             GI->OpenPreLobbyMap();
     }

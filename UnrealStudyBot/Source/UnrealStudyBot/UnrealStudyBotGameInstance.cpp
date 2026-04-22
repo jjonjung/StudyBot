@@ -6,8 +6,12 @@ void UStudyBotGameInstance::Init()
     Super::Init();
 
     // DefaultGame.ini [StudyBot] 섹션에서 URL 로드
-    GConfig->GetString(TEXT("StudyBot"), TEXT("ServerBaseUrl"), m_baseUrl,   GGameIni);
-    GConfig->GetString(TEXT("StudyBot"), TEXT("WsBaseUrl"),     m_wsBaseUrl, GGameIni);
+    FString ServerHost;
+    GConfig->GetString(TEXT("StudyBot"), TEXT("ServerHost"), ServerHost, GGameIni);
+    if (ServerHost.IsEmpty())
+        ServerHost = TEXT("localhost:3000");
+    m_baseUrl   = TEXT("http://") + ServerHost;
+    m_wsBaseUrl = TEXT("ws://")   + ServerHost;
 }
 
 // ── 인증 ─────────────────────────────────────────────────
