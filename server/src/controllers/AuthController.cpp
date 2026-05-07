@@ -4,6 +4,7 @@
 #include <bcrypt/BCrypt.hpp>
 #include <curl/curl.h>
 #include <json/json.h>
+#include "redis/RedisManager.h"
 
 static std::string makeToken(int userId, const std::string &nickname) {
     auto secret = drogon::app().getCustomConfig()["jwt_secret"].asString();
@@ -193,4 +194,29 @@ void AuthController::googleMobile(const drogon::HttpRequestPtr &req,
         },
         googleId
     );
+}
+
+void AuthController::logout(const drogon::HttpRequestPtr &req,
+                            std::function<void(const drogon::HttpResponsePtr &)> &&cb) {
+    // JwtFilter가 이미 토큰을 검증하고 raw_token을 attributes에 저장함
+    auto token = req->attributes()->get<std::string>("raw_token");
+
+    auto& redis = RedisManager::instance();
+    if (redis.isConnected() && !token.empty()) {
+        // 토큰 만료 잔여 시간 계산 (최대 24시간)
+        int ttl = 86400;
+        try {
+            auto decoded = jwt::decode(token);
+            auto exp = decoded.get_expires_at();
+            auto now = std::chrono::system_clock::now();
+            auto remaining = std::chrono::duration_cast<std::chrono::seconds>(exp - now).count();
+            if (remaining > 0) ttl = static_cast<int>(remaining);
+        } catch (...) {}
+
+        redis.blacklistToken(token, ttl);
+    }
+
+    Json::Value out;
+    out["message"] = "logged out";
+    cb(drogon::HttpResponse::newHttpJsonResponse(out));
 }

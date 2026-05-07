@@ -1,5 +1,7 @@
 #include "CardsController.h"
 #include <drogon/drogon.h>
+#include "redis/RedisManager.h"
+#include <json/json.h>
 
 static const std::set<std::string> VALID_CATEGORIES = {"Unreal","C++","CS","Company","Algorithm"};
 static const std::set<std::string> VALID_DIFFICULTIES = {"Easy","Normal","Hard"};
@@ -71,6 +73,25 @@ void CardsController::interview(const drogon::HttpRequestPtr &req,
     auto company  = req->getParameter("company");
     int  count    = std::max(1, req->getParameter("count").empty() ? 10 : std::stoi(req->getParameter("count")));
 
+    // Redis 캐시 키: "interview:<category>:<company>:<count>"
+    // RAND() 결과를 캐싱하므로 같은 파라미터 조합은 TTL 동안 동일 결과 반환 (DB 부하 절감)
+    auto& redis = RedisManager::instance();
+    std::string cacheKey = "interview:" + category + ":" + company + ":" + std::to_string(count);
+
+    if (redis.isConnected()) {
+        auto cached = redis.get(cacheKey);
+        if (cached.has_value()) {
+            Json::Value arr;
+            Json::Reader reader;
+            if (reader.parse(cached.value(), arr)) {
+                auto res = drogon::HttpResponse::newHttpJsonResponse(arr);
+                res->addHeader("X-Cache", "HIT");
+                cb(res);
+                return;
+            }
+        }
+    }
+
     std::string sql = "SELECT id,category,company,question,answer,difficulty,"
                       "core_conditions,selection_reason,code_cpp,code_csharp,time_complexity "
                       "FROM flashcards WHERE 1=1";
@@ -80,11 +101,23 @@ void CardsController::interview(const drogon::HttpRequestPtr &req,
     if (!company.empty())                 { sql += " AND company=?";  params.push_back(company); }
     sql += " ORDER BY RAND() LIMIT " + std::to_string(count);
 
+    int ttl = drogon::app().getCustomConfig().get("interview_cache_ttl", 60).asInt();
+
     auto db = drogon::app().getDbClient();
-    auto handler = [cb](const drogon::orm::Result &r) {
+    auto handler = [cb, cacheKey, ttl](const drogon::orm::Result &r) {
         Json::Value arr(Json::arrayValue);
         for (auto &row : r) arr.append(rowToJson(row));
-        cb(drogon::HttpResponse::newHttpJsonResponse(arr));
+
+        // 결과를 Redis에 저장
+        auto& redis = RedisManager::instance();
+        if (redis.isConnected()) {
+            Json::FastWriter writer;
+            redis.set(cacheKey, writer.write(arr), ttl);
+        }
+
+        auto res = drogon::HttpResponse::newHttpJsonResponse(arr);
+        res->addHeader("X-Cache", "MISS");
+        cb(res);
     };
 
     if (params.empty())

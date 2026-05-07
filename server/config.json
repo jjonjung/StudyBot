@@ -19,6 +19,11 @@
   "app": {
     "jwt_secret": "studybot-secret-key",
     "google_client_id": "xxxx.apps.googleusercontent.com",
-    "bcrypt_cost": 10
+    "bcrypt_cost": 10,
+    "redis_host": "127.0.0.1",
+    "redis_port": 6379,
+    "redis_password": "",
+    "interview_cache_ttl": 60,
+    "echo_port": 3001
   }
 }

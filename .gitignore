@@ -1,0 +1,14 @@
+# CMake 빌드 산출물
+server/build/
+
+# Python 캐시
+__pycache__/
+*.pyc
+*.pyo
+
+# 부하 테스트 결과 (로컬 전용)
+load_test/results/
+
+# 환경설정 (민감 정보)
+server/config.json
+.env
