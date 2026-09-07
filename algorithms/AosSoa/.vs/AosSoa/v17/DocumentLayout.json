@@ -1,0 +1,51 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\EJ\\Desktop\\Fork\\AutoLsp\\AosSoa\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{7C8BEA0C-FDF9-4266-9D2B-88647AC25AB0}|AosSoa\\AosSoa.vcxproj|C:\\Users\\EJ\\Desktop\\Fork\\StudyBot\\cad-algorithms\\AosVsSoa\\PipeThermalScan.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{7C8BEA0C-FDF9-4266-9D2B-88647AC25AB0}|AosSoa\\AosSoa.vcxproj|C:\\Users\\EJ\\Desktop\\Fork\\StudyBot\\cad-algorithms\\AosVsSoa\\PipeThermalScan.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 1,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "PipeThermalScan.h",
+              "DocumentMoniker": "C:\\Users\\EJ\\Desktop\\Fork\\StudyBot\\cad-algorithms\\AosVsSoa\\PipeThermalScan.h",
+              "RelativeDocumentMoniker": "..\\..\\StudyBot\\cad-algorithms\\AosVsSoa\\PipeThermalScan.h",
+              "ToolTip": "C:\\Users\\EJ\\Desktop\\Fork\\StudyBot\\cad-algorithms\\AosVsSoa\\PipeThermalScan.h",
+              "RelativeToolTip": "..\\..\\StudyBot\\cad-algorithms\\AosVsSoa\\PipeThermalScan.h",
+              "ViewState": "AgIAAAAAAAAAAAAAAADwvwAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2026-09-05T01:40:41.645Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "PipeThermalScan.cpp",
+              "DocumentMoniker": "C:\\Users\\EJ\\Desktop\\Fork\\StudyBot\\cad-algorithms\\AosVsSoa\\PipeThermalScan.cpp",
+              "RelativeDocumentMoniker": "..\\..\\StudyBot\\cad-algorithms\\AosVsSoa\\PipeThermalScan.cpp",
+              "ToolTip": "C:\\Users\\EJ\\Desktop\\Fork\\StudyBot\\cad-algorithms\\AosVsSoa\\PipeThermalScan.cpp",
+              "RelativeToolTip": "..\\..\\StudyBot\\cad-algorithms\\AosVsSoa\\PipeThermalScan.cpp",
+              "ViewState": "AgIAAA4BAAAAAAAAAAAAAN0AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2026-09-05T01:40:40.627Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
