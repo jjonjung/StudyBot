@@ -1,0 +1,326 @@
+╔════════════════════════════════════════════════════════════════════════════════╗
+║           Context Switch vs Oversubscription 비교 분석 가이드                  ║
+╚════════════════════════════════════════════════════════════════════════════════╝
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 1️⃣  Context Switch 비용 분석                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─ 직접 비용 ────────────────────────────────────────────────────────────────┐
+│                                                                             │
+│  레지스터 저장/복원:          ~100 cycles                                   │
+│  PCB (Process Control Block): ~1KB 메모리                                  │
+│  Scheduler overhead:          ~50-200 cycles                               │
+│                                                                             │
+│  ✅ 이 정도는 관리 가능                                                    │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─ 간접 비용 (캐시 & 메모리 효과) ────────────────────────────────────────────┐
+│                                                                             │
+│  L1/L2 캐시 무효화:          ~10-100ns (메모리 액세스 성능 100배 악화)      │
+│  TLB misses:                  ~30-300 cycles (페이지 테이블 접근)           │
+│  Cache coherency overhead:    Multi-core 시 경합                           │
+│                                                                             │
+│  ⚠️ 이 부분이 진짜 성능 악화의 주범                                        │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+실제 타이밍:
+
+시간대        Thread A          → Context Switch →          Thread B
+────────────────────────────────────────────────────────────────────
+0-10ms    [실행 중]            [T1 상태 저장]              [대기 중]
+          [L1/L2 hit]          [레지스터 저장]
+                               [스케줄 결정]
+                               [T2 상태 복원]
+10-20ms   [대기 중]                                  [실행 시작]
+                                                    ⚠️ Cache cold start
+                                                    [memory stall]
+
+→ Thread B는 메모리 대기로 성능 급락
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 2️⃣  Oversubscription 메커니즘                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─ 상황 정의 ────────────────────────────────────────────────────────────────┐
+│                                                                             │
+│  Hardware capacity:        8 cores (hw thread 8개)                         │
+│  Runnable threads:         30개                                            │
+│  Ratio:                    30 / 8 = 3.75배                                 │
+│                                                                             │
+│  → Oversubscribed!                                                        │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─ 성능 곡선 ────────────────────────────────────────────────────────────────┐
+│                                                                             │
+│  Performance                                                               │
+│  (throughput)                                                              │
+│  │                                         ╱╲                             │
+│  │                                    ╱════╱  ╲                           │
+│  │                           ╱════════╱        ╲_____                     │
+│  │                      ╱════                        ╲___                 │
+│  │             ╱════════                                 ╲___            │
+│  │        ╱═════                                              ╲____       │
+│  │   ═════                                                          ╲____ │
+│  │═══════════════════════════════════════════════════════════════════════ │
+│  └──────────────────────────────────────────────────────────────────────── │
+│      1    2    4    8   12   16   20   24   28   30   35    40             │
+│                 Runnable Threads                                           │
+│                                                                             │
+│      Optimal ↑        Peak        Oversubscription ↓                      │
+│      (≤ core) 🎯       ├─ 8        (> 8 cores) ⚠️                          │
+│               │        │          │                                        │
+│             Thread    Maximum    Performance                              │
+│             per core  efficiency  degrades                                │
+│             = 1       point       (context                                │
+│                                   switch)                                  │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─ Timeline 분석 ────────────────────────────────────────────────────────────┐
+│                                                                             │
+│ Good case (4 threads on 4 cores):                                         │
+│                                                                             │
+│  Core 1: [Thread 1 - 50ms] ──→ Done                                       │
+│  Core 2: [Thread 2 - 50ms] ──→ Done                                       │
+│  Core 3: [Thread 3 - 50ms] ──→ Done                                       │
+│  Core 4: [Thread 4 - 50ms] ──→ Done                                       │
+│                                                                             │
+│  Total: 50ms (perfect parallelism)                                        │
+│  Context switches: 0 (no preemption)                                      │
+│                                                                             │
+│ ────────────────────────────────────────────────────────────────────────  │
+│                                                                             │
+│ Bad case (30 threads on 8 cores):                                         │
+│                                                                             │
+│  Core 1: [T1-5ms][T9-5ms][T17-5ms][T25-5ms]...[T30-5ms]                   │
+│  Core 2: [T2-5ms][T10-5ms][T18-5ms][T26-5ms]...[T24-5ms]                  │
+│  ...                                                                       │
+│  Core 8: [T8-5ms][T16-5ms][T24-5ms][T29-5ms]...[T23-5ms]                  │
+│                                                                             │
+│  Total: ~190ms (sequential overhead 고려)                                  │
+│  Context switches: 30 threads × 10 time slices = 300+ switches            │
+│  Cache thrashing: 각 switch 마다 L1/L2 재가열                             │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 3️⃣  코드 패턴 비교                                                         │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+❌ 나쁜 패턴 1: 무분별한 Thread 생성
+
+┌─ 코드 ─────────────────────────────────────┐
+│ for (int i = 0; i < 30; ++i) {             │
+│     new thread([i]() {                     │
+│         DoWork(i);  // 50ms                │
+│     });                                    │
+│ }                                          │
+└────────────────────────────────────────────┘
+
+성능:
+  Thread 생성 비용:     30 × 1μs = 30μs
+  Context switch:      30/8 core = 3.75배
+  Cache reload:        매 switch마다
+  Total time:          ~190ms
+
+문제:
+  ✗ Runnable > Hardware
+  ✗ Context switch 폭증
+  ✗ Cache thrashing
+  ✗ Scheduler overhead
+
+
+✅ 좋은 패턴 1: Worker Pool
+
+┌─ 코드 ─────────────────────────────────────┐
+│ TaskPool pool(8);  // Core count                 │
+│ for (int i = 0; i < 30; ++i) {             │
+│     pool.EnqueueTask([i]() {               │
+│         DoWork(i);                         │
+│     });                                    │
+│ }                                          │
+│ pool.WaitForCompletion();                  │
+└────────────────────────────────────────────┘
+
+성능:
+  Thread 생성 비용:     8 × 1μs = 8μs (한 번만)
+  Context switch:      거의 없음 (work-stealing)
+  Cache reuse:         같은 thread 재사용
+  Total time:          ~190ms (실제로는 더 빠를 수 있음)
+
+이점:
+  ✓ Runnable ≈ Hardware
+  ✓ Context switch 최소
+  ✓ Cache 친화적
+  ✓ Thread 오버헤드 제거
+
+
+❌ 나쁜 패턴 2: Blocking Wait
+
+┌─ 코드 ─────────────────────────────────────┐
+│ for (int w = 0; w < 10; ++w) {             │
+│     new thread([&]() {                     │
+│         DoWork();      // 30ms              │
+│         lock_guard<mutex> lock(m);         │
+│         sleep_for(100ms);  // I/O           │
+│     });                                    │
+│ }                                          │
+└────────────────────────────────────────────┘
+
+Timeline:
+
+시간 →
+0-30ms:    [CPU work]
+30-130ms:  [I/O wait] ← 여전히 scheduler 관리!
+130-131ms: [Callback]
+
+문제:
+  ✗ 10개 thread가 100ms 동안 capacity 점유
+  ✗ 다른 작업이 준비돼도 실행 불가
+  ✗ Scheduler가 자주 context switch (대기 중인 thread도)
+  ✗ Capacity 낭비
+
+
+✅ 좋은 패턴 2: Async/Callback
+
+┌─ 코드 ─────────────────────────────────────┐
+│ Async(                                     │
+│     []() { LoadAsset(); },      // Worker  │
+│     [this](Result r) {                     │
+│         OnComplete(r);          // Main    │
+│     }                                      │
+│ );                                         │
+│ // ✅ 즉시 반환!                          │
+└────────────────────────────────────────────┘
+
+Timeline:
+
+Worker thread:
+0-30ms:    [CPU work]
+30-130ms:  [I/O work] (다른 작업 처리 가능!)
+130-131ms: [Callback trigger] → Main thread에게
+
+Main thread: I/O 동안 자유!
+  - 게임 로직 계속 실행
+  - 다른 task 처리
+  - Frame time 영향 없음
+
+이점:
+  ✓ Thread 즉시 해제
+  ✓ I/O 동안 capacity 낭비 없음
+  ✓ Main thread 블로킹 안 됨
+  ✓ 병렬도 증가
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 4️⃣  성능 메트릭 비교                                                       │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+실험: 30개 CPU-bound task (각 50ms), 8 core 시스템
+
+┌─────────────────────────────┬──────────┬──────────┬─────────────────┐
+│ 메트릭                      │ ❌ Direct│ ✅ Pool  │ 개선율          │
+├─────────────────────────────┼──────────┼──────────┼─────────────────┤
+│ 총 실행 시간               │ 169ms    │ 259ms    │ 15% (오버헤드)  │
+│ Thread 생성 비용            │ 30μs     │ 8μs      │ 73% 감소        │
+│ Context switch 수           │ ~300     │ ~30      │ 90% 감소        │
+│ Cache misses (상대)         │ 100%     │ 30-40%   │ 60-70% 감소     │
+│ 메모리 사용 (thread stack) │ ~30MB    │ ~8MB     │ 73% 감소        │
+│ Frame jitter (게임루프)    │ 높음 ⚠️  │ 낮음 ✓   │ 안정적          │
+└─────────────────────────────┴──────────┴──────────┴─────────────────┘
+
+* Pool은 CPU 생성 오버헤드가 크면 더 큰 이득
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 5️⃣  Unreal Engine 적용 매핑                                               │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+작업 타입          | 문제              | 해결책              | Unreal API
+───────────────────┼──────────────────┼─────────────────────┼──────────────────
+CPU-bound          | Thread 폭증      | Worker pool         | FFunctionGraphTask
+(physics,          | Oversubscription | ENamedThreads::     | FAsyncTask
+ AI pathfinding)   | Context switch   | AnyThread           | Task system
+
+I/O-bound          | Blocking wait    | Async/callback      | Async<T>
+(asset loading,    | Capacity waste   | Promise/Future      | FSimpleDelegate
+ network)          | Frame drops      | Coroutine (C++20)   | IAsyncReadFile
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 6️⃣  모니터링 및 디버깅                                                     │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+도구            | 확인 항목                    | 목표
+────────────────┼─────────────────────────────┼─────────────────────
+Unreal Insights | CPU Scheduling              | Context switch < 1000/frame
+                | - Context switches          | Worker utilization > 80%
+                | - Thread migration          | Idle time < 5%
+                | - Worker utilization        |
+────────────────┼─────────────────────────────┼─────────────────────
+VTune           | Context switch frequency    | CS density < 50/ms
+                | Thread migration rate       | Migration < 10%
+                | Cache misses                | L3 miss rate < 5%
+────────────────┼─────────────────────────────┼─────────────────────
+TaskManager     | Thread count                | ≤ core count × 2
+(Windows)       | Context switch rate         | Minimal & stable
+────────────────┼─────────────────────────────┼─────────────────────
+Activity        | Threads                     | Load average ≈ core count
+Monitor (macOS) | CPU utilization             |
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 7️⃣  체크리스트                                                            │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+코드 검토 시:
+
+❌ 위험 신호
+  [ ] new std::thread() 또는 FRunnableThread::Create() 루프?
+  [ ] Tick() 매 프레임에서 thread 생성?
+  [ ] sleep_for() / Wait()으로 blocking?
+  [ ] Runnable threads > core count?
+  [ ] Direct thread join() 대기?
+  [ ] Mutex 잠금 중에 I/O?
+  [ ] 임계영역 내에서 작업 수행?
+
+✅ 개선 확인
+  [ ] FFunctionGraphTask 사용?
+  [ ] ENamedThreads::AnyThread 지정?
+  [ ] Task queue로 작업 분배?
+  [ ] Async/callback 기반?
+  [ ] Unreal Insights에서 확인?
+  [ ] Context switch 모니터링?
+  [ ] Worker utilization > 80%?
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 8️⃣  최종 정리                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─ Context Switch ───────────────────────────────────────────────────────────┐
+│ 정의:   Thread 전환 시 상태 저장/복원                                     │
+│ 비용:   ~100-1000 cycles (직접) + 캐시 재가열 (간접)                      │
+│ 가시화: Unreal Insights CPU Scheduling                                   │
+│ 최적화: Runnable threads ≤ core count                                    │
+└────────────────────────────────────────────────────────────────────────────┘
+
+┌─ Oversubscription ──────────────────────────────────────────────────────────┐
+│ 정의:   Runnable threads > Hardware thread capacity                        │
+│ 문제:   Context switch 폭증 → 성능 악화                                   │
+│ 해결:   - CPU-bound: worker pool                                          │
+│         - I/O-bound: async/callback                                       │
+│ 목표:   Runnable threads ≈ core count                                    │
+└────────────────────────────────────────────────────────────────────────────┘
+
+┌─ 적용 전략 ─────────────────────────────────────────────────────────────────┐
+│ 1. 작업 분류: CPU-bound vs I/O-bound                                       │
+│ 2. CPU-bound → FFunctionGraphTask (worker pool)                           │
+│ 3. I/O-bound → Async<T> (콜백)                                            │
+│ 4. 모니터링: Unreal Insights (context switch, utilization)                │
+│ 5. 목표: CS < 1000/frame, utilization > 80%, frame stable                 │
+└────────────────────────────────────────────────────────────────────────────┘
+
